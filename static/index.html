@@ -436,7 +436,7 @@
     <div id="auth-box" class="auth-container">
 
         <!-- REGISTER PANEL -->
-        <div id="form-register" class="auth-form active">
+        <div id="form-register" class="auth-form">
             <div class="auth-header">
                 <h1>Create Account</h1>
                 <p>Register a new starter-kit user</p>
@@ -476,7 +476,7 @@
         </div>
 
         <!-- LOGIN PANEL -->
-        <div id="form-login" class="auth-form">
+        <div id="form-login" class="auth-form active">
             <div class="auth-header">
                 <h1>Sign In</h1>
                 <p>Access your application session</p>
@@ -494,6 +494,16 @@
                             onclick="togglePasswordVisibility('login-password')">Show</button>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="login-test-role">Test Role Selection (Dev Only)</label>
+                    <select id="login-test-role" class="form-input"
+                        style="appearance: auto; background-color: var(--input-bg); color: var(--text-main); font-weight: 500;">
+                        <option value="Fleet Manager">Fleet Manager</option>
+                        <option value="Dispatcher">Dispatcher</option>
+                        <option value="Safety Officer">Safety Officer</option>
+                        <option value="Financial Analyst">Financial Analyst</option>
+                    </select>
+                </div>
                 <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
                     <button type="button" class="btn-link" style="font-size: 13px;"
                         onclick="switchForm('forgot')">Forgot Password?</button>
@@ -502,9 +512,6 @@
                     <span class="spinner"></span> Sign In
                 </button>
             </form>
-            <div class="auth-footer">
-                Don't have an account? <button class="btn-link" onclick="switchForm('register')">Register</button>
-            </div>
         </div>
 
         <!-- VERIFY OTP PANEL -->
@@ -643,6 +650,7 @@
         let activePurpose = ""; // REGISTRATION, LOGIN, FORGOT_PASSWORD
         let resendTimer = null;
         let cooldownSeconds = 45;
+        let lastSelectedRole = "";
 
         // On Page Load, check session
         window.addEventListener("DOMContentLoaded", () => {
@@ -789,9 +797,27 @@
                         switchForm("verify");
                         startResendCooldown();
                     } else {
+                        // Compare selected role with actual backend role
+                        const actualRole = resData.data.role;
+                        if (selectedRole !== actualRole) {
+                            showToast("Selected role does not match the assigned account role.", "error");
+                            setSubmitting("btn-login", false);
+                            return;
+                        }
+
                         showToast("Access granted.", "success");
                         localStorage.setItem("token", resData.data.access_token);
-                        fetchUserProfile(resData.data.access_token);
+
+                        // Role-based redirection
+                        let redirectPath = "/";
+                        if (actualRole === "Fleet Manager") redirectPath = "/fleet-manager/dashboard";
+                        else if (actualRole === "Dispatcher") redirectPath = "/dispatcher/dashboard";
+                        else if (actualRole === "Safety Officer") redirectPath = "/safety-officer/dashboard";
+                        else if (actualRole === "Financial Analyst") redirectPath = "/financial-analyst/dashboard";
+
+                        setTimeout(() => {
+                            window.location.href = redirectPath;
+                        }, 1000);
                     }
                 } else {
                     showToast(resData.message || "Login failed.", "error");
@@ -823,8 +849,27 @@
                     if (activePurpose === "REGISTRATION") {
                         switchForm("login");
                     } else if (activePurpose === "LOGIN") {
+                        // Compare selected role with actual backend role
+                        const actualRole = resData.data.role;
+                        if (lastSelectedRole && lastSelectedRole !== actualRole) {
+                            showToast("Selected role does not match the assigned account role.", "error");
+                            setSubmitting("btn-verify", false);
+                            switchForm("login");
+                            return;
+                        }
+
                         localStorage.setItem("token", resData.data.access_token);
-                        fetchUserProfile(resData.data.access_token);
+
+                        // Role-based redirection
+                        let redirectPath = "/";
+                        if (actualRole === "Fleet Manager") redirectPath = "/fleet-manager/dashboard";
+                        else if (actualRole === "Dispatcher") redirectPath = "/dispatcher/dashboard";
+                        else if (actualRole === "Safety Officer") redirectPath = "/safety-officer/dashboard";
+                        else if (actualRole === "Financial Analyst") redirectPath = "/financial-analyst/dashboard";
+
+                        setTimeout(() => {
+                            window.location.href = redirectPath;
+                        }, 1000);
                     }
                 } else {
                     showToast(resData.message || "Invalid code.", "error");
@@ -945,7 +990,7 @@
 
                     // Update values
                     const user = resData.data.user;
-                    document.getElementById("dash-welcome").textContent = `Welcome back, ${user.username}!`;
+                    document.getElementById("dash-welcome").innerHTML = `Welcome back, ${user.username}!<br><span style="color: var(--primary); font-size: 13px; font-weight: 500;">Current Active Path: ${window.location.pathname}</span>`;
                     document.getElementById("dash-username").textContent = user.username;
                     document.getElementById("dash-email").textContent = user.email;
 
