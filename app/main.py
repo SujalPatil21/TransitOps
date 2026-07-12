@@ -11,6 +11,7 @@ from app.config.settings import settings, ConfigurationError
 from app.database.database import engine, Base
 from app.auth.controllers.router import router as auth_router
 from app.modules.fleet.controllers.vehicle_controller import router as fleet_router
+from app.modules.finance.controllers.finance_controller import router as finance_router
 from app.auth.exceptions.exceptions import AuthException
 from app.common.responses import APIResponse
 
@@ -83,6 +84,7 @@ app.add_middleware(
 # Register Authentication router
 app.include_router(auth_router)
 app.include_router(fleet_router)
+app.include_router(finance_router)
 
 # Mount the test front-end static files
 # static folder is at the root of the workspace

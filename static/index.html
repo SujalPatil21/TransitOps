@@ -643,6 +643,202 @@
         </div>
     </div>
 
+    <!-- FINANCIAL ANALYST DASHBOARD -->
+    <div id="financial-analyst-box" class="dashboard-container" style="display: none; max-width: 1000px; width: 100%;">
+        <div class="dashboard-header">
+            <div>
+                <h2 id="fin-welcome">Financial Analyst Console</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Operational Financial Analytics</p>
+            </div>
+            <button class="btn"
+                style="width: auto; padding: 8px 16px; background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); box-shadow: none;"
+                onclick="handleLogout()">Sign Out</button>
+        </div>
+
+        <!-- DEPENDENCY ERROR STATE CONTAINER -->
+        <div id="fin-error-card" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 24px; border-radius: 16px; margin-bottom: 24px; text-align: center;">
+            <svg style="width: 48px; height: 48px; fill: var(--danger); margin-bottom: 12px;" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <h3 style="color: var(--danger); font-family: var(--font-display); font-size: 18px; margin-bottom: 8px;">Database Table Missing</h3>
+            <p id="fin-error-message" style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Dependency missing.</p>
+            <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.3);">503 SERVICE UNAVAILABLE</span>
+        </div>
+
+        <!-- TAB NAVIGATION -->
+        <div id="fin-tabs" style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+            <button class="btn" id="tab-btn-dash" style="width: auto; padding: 10px 20px; font-size: 14px; background: var(--primary);" onclick="switchFinTab('dash')">Dashboard</button>
+            <button class="btn" id="tab-btn-analytics" style="width: auto; padding: 10px 20px; font-size: 14px; background: transparent; color: var(--text-main); border: 1px solid var(--card-border); box-shadow: none;" onclick="switchFinTab('analytics')">Analytics</button>
+            <button class="btn" id="tab-btn-reports" style="width: auto; padding: 10px 20px; font-size: 14px; background: transparent; color: var(--text-main); border: 1px solid var(--card-border); box-shadow: none;" onclick="switchFinTab('reports')">Reports</button>
+        </div>
+
+        <!-- DASHBOARD TAB CONTENT -->
+        <div id="fin-tab-dash" class="fin-tab-content">
+            <div class="profile-info" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 24px;">
+                <div class="info-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.02) 100%);">
+                    <label>Total Fuel Cost</label>
+                    <span id="fin-fuel-cost" style="font-size: 24px; font-weight: 700; color: #a5b4fc;">$0.00</span>
+                </div>
+                <div class="info-card" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0.02) 100%);">
+                    <label>Total Maintenance Cost</label>
+                    <span id="fin-maint-cost" style="font-size: 24px; font-weight: 700; color: #f472b6;">$0.00</span>
+                </div>
+                <div class="info-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);">
+                    <label>Total Operational Cost</label>
+                    <span id="fin-op-cost" style="font-size: 24px; font-weight: 700; color: #34d399;">$0.00</span>
+                </div>
+                <div class="info-card">
+                    <label>Average Fuel Efficiency</label>
+                    <span id="fin-fuel-efficiency" style="font-size: 24px; font-weight: 700; color: var(--text-main);">0.00 km/L</span>
+                </div>
+                <div class="info-card">
+                    <label>Fleet Utilization</label>
+                    <span id="fin-utilization" style="font-size: 24px; font-weight: 700; color: var(--text-main);">0.00%</span>
+                </div>
+                <div class="info-card">
+                    <label>Average Vehicle ROI</label>
+                    <span id="fin-roi" style="font-size: 24px; font-weight: 700; color: var(--text-main);">0.00x</span>
+                </div>
+            </div>
+
+            <!-- RECENT TRIPS TABLE -->
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--card-border); padding: 24px; border-radius: 16px;">
+                <h3 style="font-family: var(--font-display); font-size: 18px; margin-bottom: 16px;">Recent Trips Summary</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-muted);">
+                                <th style="padding: 12px;">Trip ID</th>
+                                <th style="padding: 12px;">Vehicle</th>
+                                <th style="padding: 12px;">Revenue</th>
+                                <th style="padding: 12px;">Distance</th>
+                                <th style="padding: 12px;">Status</th>
+                                <th style="padding: 12px;">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-trips-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS TAB CONTENT -->
+        <div id="fin-tab-analytics" class="fin-tab-content" style="display: none;">
+            <!-- Filter Panel -->
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--card-border); padding: 20px; border-radius: 16px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                    <label>Start Date</label>
+                    <input type="date" id="filter-start-date" class="form-input">
+                </div>
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                    <label>End Date</label>
+                    <input type="date" id="filter-end-date" class="form-input">
+                </div>
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                    <label>Vehicle</label>
+                    <select id="filter-vehicle" class="form-input" style="appearance: auto; background-color: var(--input-bg); color: var(--text-main);">
+                        <option value="">All Vehicles</option>
+                    </select>
+                </div>
+                <button class="btn" style="height: 48px; width: auto; padding: 0 24px;" onclick="applyAnalyticsFilters()">Apply Filters</button>
+            </div>
+
+            <!-- Analytics Content & SVG Charts -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                <!-- Pie Chart: Cost Breakdown -->
+                <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--card-border); padding: 24px; border-radius: 16px; text-align: center;">
+                    <h3 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px; text-align: left;">Operational Cost Breakdown</h3>
+                    <div style="display: flex; justify-content: center; align-items: center; height: 200px;">
+                        <svg id="cost-pie-chart" width="200" height="200" viewBox="-100 -100 200 200">
+                            <!-- Populated dynamically -->
+                        </svg>
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: 20px; font-size: 12px; margin-top: 12px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 12px; height: 12px; background: #6366f1; border-radius: 3px;"></div>
+                            <span>Fuel Cost: <b id="chart-fuel-lbl">$0</b></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 12px; height: 12px; background: #ec4899; border-radius: 3px;"></div>
+                            <span>Maintenance: <b id="chart-maint-lbl">$0</b></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bar Chart: Vehicle Metrics -->
+                <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--card-border); padding: 24px; border-radius: 16px;">
+                    <h3 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px;">Metrics Scope Overview</h3>
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                                <span>Fuel Efficiency</span>
+                                <span id="bar-fuel-val" style="font-weight: 600;">0.00 km/L</span>
+                            </div>
+                            <div style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden;">
+                                <div id="bar-fuel-fill" style="height: 100%; width: 0%; background: #6366f1; transition: width 0.6s ease;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                                <span>Fleet Utilization</span>
+                                <span id="bar-util-val" style="font-weight: 600;">0.00%</span>
+                            </div>
+                            <div style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden;">
+                                <div id="bar-util-fill" style="height: 100%; width: 0%; background: #34d399; transition: width 0.6s ease;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                                <span>Average ROI</span>
+                                <span id="bar-roi-val" style="font-weight: 600;">0.00x</span>
+                            </div>
+                            <div style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden;">
+                                <div id="bar-roi-fill" style="height: 100%; width: 0%; background: #fbbf24; transition: width 0.6s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORTS TAB CONTENT -->
+        <div id="fin-tab-reports" class="fin-tab-content" style="display: none;">
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+                <button class="btn active-rep-btn" style="width: auto; font-size: 13px; padding: 8px 16px; background: var(--primary);" onclick="loadReportType('fuel', this)">Fuel Report</button>
+                <button class="btn active-rep-btn" style="width: auto; font-size: 13px; padding: 8px 16px; background: transparent; border: 1px solid var(--card-border); color: var(--text-main); box-shadow: none;" onclick="loadReportType('expense', this)">Expense Report</button>
+                <button class="btn active-rep-btn" style="width: auto; font-size: 13px; padding: 8px 16px; background: transparent; border: 1px solid var(--card-border); color: var(--text-main); box-shadow: none;" onclick="loadReportType('maintenance', this)">Maintenance Report</button>
+                <button class="btn active-rep-btn" style="width: auto; font-size: 13px; padding: 8px 16px; background: transparent; border: 1px solid var(--card-border); color: var(--text-main); box-shadow: none;" onclick="loadReportType('vehicle_roi', this)">Vehicle ROI Report</button>
+                <button class="btn active-rep-btn" style="width: auto; font-size: 13px; padding: 8px 16px; background: transparent; border: 1px solid var(--card-border); color: var(--text-main); box-shadow: none;" onclick="loadReportType('operational_cost', this)">Operational Cost Report</button>
+                <button class="btn active-rep-btn" style="width: auto; font-size: 13px; padding: 8px 16px; background: transparent; border: 1px solid var(--card-border); color: var(--text-main); box-shadow: none;" onclick="loadReportType('trip_financial', this)">Trip Financial Report</button>
+            </div>
+
+            <!-- Report Panel -->
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--card-border); padding: 24px; border-radius: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 id="report-title-label" style="font-family: var(--font-display); font-size: 18px;">Fuel Report Preview</h3>
+                    <button class="btn" style="width: auto; padding: 8px 16px; font-size: 13px; background: #34d399; box-shadow: none;" onclick="downloadActiveCSV()">
+                        <svg style="width: 16px; height: 16px; fill: white; margin-right: 6px;" viewBox="0 0 24 24">
+                            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+                        </svg>
+                        Export CSV
+                    </button>
+                </div>
+                <div style="overflow-x: auto; max-height: 400px;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                        <thead id="report-table-head">
+                            <!-- Populated dynamically -->
+                        </thead>
+                        <tbody id="report-table-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global State
         const API_BASE = "/auth";
@@ -986,7 +1182,16 @@
                 if (resData.success) {
                     // Hide login box, show dashboard
                     document.getElementById("auth-box").style.display = "none";
-                    document.getElementById("dashboard-box").style.display = "block";
+                    
+                    const user = resData.data.user;
+                    if (user.role === "Financial Analyst") {
+                        document.getElementById("dashboard-box").style.display = "none";
+                        document.getElementById("financial-analyst-box").style.display = "block";
+                        initFinancialDashboard(token);
+                    } else {
+                        document.getElementById("financial-analyst-box").style.display = "none";
+                        document.getElementById("dashboard-box").style.display = "block";
+                    }
 
                     // Update values
                     const user = resData.data.user;
@@ -1025,9 +1230,267 @@
         function handleLogout() {
             localStorage.removeItem("token");
             document.getElementById("dashboard-box").style.display = "none";
+            document.getElementById("financial-analyst-box").style.display = "none";
             document.getElementById("auth-box").style.display = "block";
             switchForm("login");
             showToast("Successfully logged out.", "info");
+        }
+
+        // ==============================================================================
+        // FINANCIAL ANALYST HANDLERS
+        // ==============================================================================
+        let activeReport = "fuel";
+
+        async function initFinancialDashboard(token) {
+            try {
+                const response = await fetch("/financial/dashboard", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const resData = await response.json();
+                
+                if (response.status === 503) {
+                    document.getElementById("fin-error-message").textContent = resData.message;
+                    document.getElementById("fin-error-card").style.display = "block";
+                    document.getElementById("fin-tabs").style.display = "none";
+                    document.getElementById("fin-tab-dash").style.display = "none";
+                    return;
+                }
+
+                if (resData.success) {
+                    document.getElementById("fin-error-card").style.display = "none";
+                    document.getElementById("fin-tabs").style.display = "flex";
+                    document.getElementById("fin-tab-dash").style.display = "block";
+                    
+                    const d = resData.data;
+                    document.getElementById("fin-fuel-cost").textContent = `$${d.total_fuel_cost.toLocaleString()}`;
+                    document.getElementById("fin-maint-cost").textContent = `$${d.total_maintenance_cost.toLocaleString()}`;
+                    document.getElementById("fin-op-cost").textContent = `$${d.total_operational_cost.toLocaleString()}`;
+                    document.getElementById("fin-fuel-efficiency").textContent = `${d.average_fuel_efficiency} km/L`;
+                    document.getElementById("fin-utilization").textContent = `${d.fleet_utilization}%`;
+                    document.getElementById("fin-roi").textContent = `${d.average_vehicle_roi}x`;
+
+                    // Populate vehicles filter
+                    const vehSelect = document.getElementById("filter-vehicle");
+                    vehSelect.innerHTML = '<option value="">All Vehicles</option>';
+                    if (d.vehicles) {
+                        d.vehicles.forEach(v => {
+                            const opt = document.createElement("option");
+                            opt.value = v.id;
+                            opt.textContent = v.registration;
+                            vehSelect.appendChild(opt);
+                        });
+                    }
+
+                    // Populate recent trips table
+                    const tripsBody = document.getElementById("recent-trips-body");
+                    tripsBody.innerHTML = "";
+                    if (!d.recent_trips_summary || d.recent_trips_summary.length === 0) {
+                        tripsBody.innerHTML = `<tr><td colspan="6" style="padding: 12px; text-align: center; color: var(--text-muted);">No recent trips found.</td></tr>`;
+                    } else {
+                        d.recent_trips_summary.forEach(t => {
+                            const tr = document.createElement("tr");
+                            tr.style.borderBottom = "1px solid var(--card-border)";
+                            tr.innerHTML = `
+                                <td style="padding: 12px; font-weight: 600;">Trip #${t.trip_id}</td>
+                                <td style="padding: 12px;">${t.vehicle_registration}</td>
+                                <td style="padding: 12px; color: #34d399;">$${t.revenue.toLocaleString()}</td>
+                                <td style="padding: 12px;">${t.distance} km</td>
+                                <td style="padding: 12px;"><span class="badge">${t.status}</span></td>
+                                <td style="padding: 12px; color: var(--text-muted);">${t.date}</td>
+                            `;
+                            tripsBody.appendChild(tr);
+                        });
+                    }
+
+                    // Prepopulate analytics scope
+                    applyAnalyticsFilters();
+                    // Prepopulate report
+                    loadReportType("fuel");
+                }
+            } catch (err) {
+                showToast("Network error initializing financial dashboard.", "error");
+            }
+        }
+
+        function switchFinTab(tabName) {
+            document.querySelectorAll(".fin-tab-content").forEach(el => el.style.display = "none");
+            document.getElementById(`fin-tab-${tabName}`).style.display = "block";
+            
+            ["dash", "analytics", "reports"].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabName) {
+                    btn.style.background = "var(--primary)";
+                    btn.style.color = "white";
+                    btn.style.border = "none";
+                    btn.style.boxShadow = "0 4px 12px var(--primary-glow)";
+                } else {
+                    btn.style.background = "transparent";
+                    btn.style.color = "var(--text-main)";
+                    btn.style.border = "1px solid var(--card-border)";
+                    btn.style.boxShadow = "none";
+                }
+            });
+        }
+
+        async function applyAnalyticsFilters() {
+            const token = localStorage.getItem("token");
+            const start = document.getElementById("filter-start-date").value;
+            const end = document.getElementById("filter-end-date").value;
+            const veh = document.getElementById("filter-vehicle").value;
+            
+            let queryParams = [];
+            if (start) queryParams.push(`start_date=${start}`);
+            if (end) queryParams.push(`end_date=${end}`);
+            if (veh) queryParams.push(`vehicle_id=${veh}`);
+            
+            let url = "/financial/analytics";
+            if (queryParams.length > 0) {
+                url += "?" + queryParams.join("&");
+            }
+            
+            try {
+                const response = await fetch(url, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const resData = await response.json();
+                if (resData.success) {
+                    const d = resData.data;
+                    document.getElementById("bar-fuel-val").textContent = `${d.fuel_efficiency} km/L`;
+                    document.getElementById("bar-util-val").textContent = `${d.fleet_utilization}%`;
+                    document.getElementById("bar-roi-val").textContent = `${d.vehicle_roi}x`;
+                    
+                    document.getElementById("bar-fuel-fill").style.width = `${Math.min(d.fuel_efficiency * 10, 100)}%`;
+                    document.getElementById("bar-util-fill").style.width = `${Math.min(d.fleet_utilization, 100)}%`;
+                    document.getElementById("bar-roi-fill").style.width = `${Math.min(d.vehicle_roi * 100, 100)}%`;
+
+                    document.getElementById("chart-fuel-lbl").textContent = `$${d.fuel_cost.toLocaleString()}`;
+                    document.getElementById("chart-maint-lbl").textContent = `$${d.maintenance_cost.toLocaleString()}`;
+                    
+                    updatePieChart(d.fuel_cost, d.maintenance_cost);
+                }
+            } catch (err) {
+                showToast("Error updating analytics data.", "error");
+            }
+        }
+
+        function updatePieChart(fuelCost, maintCost) {
+            const svg = document.getElementById("cost-pie-chart");
+            svg.innerHTML = "";
+            const total = fuelCost + maintCost;
+            if (total === 0) {
+                svg.innerHTML = '<circle r="80" cx="0" cy="0" fill="rgba(255,255,255,0.05)" stroke="var(--card-border)" stroke-width="2" />';
+                return;
+            }
+            
+            const pFuel = fuelCost / total;
+            
+            let x1 = 0, y1 = -80;
+            const angleFuel = pFuel * 2 * Math.PI;
+            let x2 = 80 * Math.sin(angleFuel);
+            let y2 = -80 * Math.cos(angleFuel);
+            let largeArc = pFuel > 0.5 ? 1 : 0;
+            
+            let pathFuel = `<path d="M 0 0 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z" fill="#6366f1" />`;
+            let pathMaint = `<path d="M 0 0 L ${x2} ${y2} A 80 80 0 ${1 - largeArc} 1 ${x1} ${y1} Z" fill="#ec4899" />`;
+            
+            svg.innerHTML = pathFuel + pathMaint + '<circle r="40" cx="0" cy="0" fill="#090d16" />';
+        }
+
+        async function loadReportType(reportType, element) {
+            activeReport = reportType;
+            
+            if (element) {
+                document.querySelectorAll(".active-rep-btn").forEach(btn => {
+                    btn.style.background = "transparent";
+                    btn.style.color = "var(--text-main)";
+                    btn.style.border = "1px solid var(--card-border)";
+                    btn.style.boxShadow = "none";
+                });
+                element.style.background = "var(--primary)";
+                element.style.color = "white";
+                element.style.border = "none";
+                element.style.boxShadow = "0 4px 12px var(--primary-glow)";
+            }
+            
+            const token = localStorage.getItem("token");
+            document.getElementById("report-title-label").textContent = `${reportType.replace("_", " ").toUpperCase()} REPORT PREVIEW`;
+            
+            try {
+                const response = await fetch(`/financial/reports?report_type=${reportType}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const resData = await response.json();
+                if (resData.success) {
+                    const head = document.getElementById("report-table-head");
+                    const body = document.getElementById("report-table-body");
+                    head.innerHTML = "";
+                    body.innerHTML = "";
+                    
+                    const rows = resData.data;
+                    if (rows.length === 0) {
+                        body.innerHTML = `<tr><td style="padding: 12px; text-align: center; color: var(--text-muted);">No records found.</td></tr>`;
+                        return;
+                    }
+                    
+                    const keys = Object.keys(rows[0]);
+                    const trHead = document.createElement("tr");
+                    trHead.style.borderBottom = "1px solid var(--card-border)";
+                    trHead.style.color = "var(--text-muted)";
+                    keys.forEach(k => {
+                        trHead.innerHTML += `<th style="padding: 12px;">${k.replace("_", " ").toUpperCase()}</th>`;
+                    });
+                    head.appendChild(trHead);
+                    
+                    rows.forEach(r => {
+                        const trBody = document.createElement("tr");
+                        trBody.style.borderBottom = "1px solid var(--card-border)";
+                        keys.forEach(k => {
+                            let val = r[k];
+                            if (typeof val === "number") {
+                                if (k.includes("cost") || k.includes("amount") || k.includes("revenue")) {
+                                    val = `$${val.toLocaleString()}`;
+                                } else if (k === "roi") {
+                                    val = `${val}x`;
+                                }
+                            }
+                            trBody.innerHTML += `<td style="padding: 12px;">${val}</td>`;
+                        });
+                        body.appendChild(trBody);
+                    });
+                }
+            } catch (err) {
+                showToast("Error loading report details.", "error");
+            }
+        }
+
+        function downloadActiveCSV() {
+            const token = localStorage.getItem("token");
+            const url = `/financial/export/csv?report_type=${activeReport}`;
+            
+            fetch(url, {
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+            .then(res => {
+                if (res.status === 503) {
+                    showToast("Cannot export CSV: table dependencies missing.", "error");
+                    return null;
+                }
+                return res.blob();
+            })
+            .then(blob => {
+                if (!blob) return;
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${activeReport}_report.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(err => {
+                showToast("Error downloading CSV file.", "error");
+            });
         }
     </script>
 </body>

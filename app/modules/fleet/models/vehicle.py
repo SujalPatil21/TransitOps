@@ -23,6 +23,7 @@ class Vehicle(Base):
     manufacturing_year: Mapped[int] = mapped_column(Integer, nullable=False)
     capacity_kg: Mapped[float] = mapped_column(Float, nullable=False)
     odometer: Mapped[float] = mapped_column(Float, nullable=False)
+    acquisition_cost: Mapped[float] = mapped_column(Float, default=50000.0, nullable=False)
     status: Mapped[str] = mapped_column(String(50), default=VehicleStatus.AVAILABLE.value, nullable=False)
     
     created_at: Mapped[datetime.datetime] = mapped_column(
