@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand colors */
+  --color-primary: #C70E11;
+  --color-secondary: #D92A11;
+  --color-accent: #F6DD8B;
+  --color-bg-cream: #FFF7E7;
+  --color-card-white: #FFFFFF;
+  --color-text-primary: #2D2D2D;
+  --color-text-secondary: #6B7280;
+  --color-border-light: #E7E7E7;
+  
+  /* Semantic Warm Extensions */
+  --color-card-warm: #FAF4E6;
+  --color-border-warm: #E2DBC3;
+  
+  /* Status Colors (Soft Pastels) */
+  --color-status-avail-bg: #E8F5E9;
+  --color-status-avail-text: #2E7D32;
+  --color-status-trip-bg: #E3F2FD;
+  --color-status-trip-text: #1565C0;
+  --color-status-maint-bg: #FFFDE7;
+  --color-status-maint-text: #F57F17;
+  --color-status-complete-bg: #E0F2F1;
+  --color-status-complete-text: #00695C;
+  --color-status-cancel-bg: #FFEBEE;
+  --color-status-cancel-text: #C62828;
+  --color-status-retired-bg: #F5F5F5;
+  --color-status-retired-text: #616161;
+  
+  /* Spacing Tokens */
+  --spacing-page-px: 24px;
+  --spacing-page-py: 32px;
+  --spacing-section-gap: 24px;
+  --spacing-card-p: 20px;
+  
+  /* Borders and Shadow Visual Constants */
+  --radius-card: 16px;
+  --radius-input: 8px;
+  --radius-badge: 9999px;
+  
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  --shadow-login: 0 20px 50px -12px rgba(45, 45, 45, 0.03);
+  
+  /* Transitions */
+  --transition-normal: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.1s ease;
+}
