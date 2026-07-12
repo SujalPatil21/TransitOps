@@ -1,0 +1,410 @@
+Folder PATH listing for volume Windows
+Volume serial number is 000000F8 2EA3:CE1B
+C:.
+|   .gitignore
+|   LICENSE
+|   project_structure.txt
+|   README.md
+|   TransitOps Smart Transport Operations Platform.pdf
+|   
++---Backend
+|   |   README.md
+|   |   requirements.txt
+|   |   
+|   +---app
+|   |   |   main.py
+|   |   |   
+|   |   +---auth
+|   |   |   |   constants.py
+|   |   |   |   __init__.py
+|   |   |   |   
+|   |   |   +---controllers
+|   |   |   |       router.py
+|   |   |   |       __init__.py
+|   |   |   |       
+|   |   |   +---exceptions
+|   |   |   |       exceptions.py
+|   |   |   |       __init__.py
+|   |   |   |       
+|   |   |   +---models
+|   |   |   |       models.py
+|   |   |   |       __init__.py
+|   |   |   |       
+|   |   |   +---repositories
+|   |   |   |       repository.py
+|   |   |   |       __init__.py
+|   |   |   |       
+|   |   |   +---schemas
+|   |   |   |       schemas.py
+|   |   |   |       __init__.py
+|   |   |   |       
+|   |   |   +---security
+|   |   |   |       dependencies.py
+|   |   |   |       permissions.py
+|   |   |   |       __init__.py
+|   |   |   |       
+|   |   |   +---services
+|   |   |   |       email_service.py
+|   |   |   |       jwt_service.py
+|   |   |   |       otp_service.py
+|   |   |   |       password_service.py
+|   |   |   |       service.py
+|   |   |   |       __init__.py
+|   |   |   |       
+|   |   |   \---validators
+|   |   |           validators.py
+|   |   |           __init__.py
+|   |   |           
+|   |   +---common
+|   |   |       interfaces.py
+|   |   |       responses.py
+|   |   |       
+|   |   +---config
+|   |   |       settings.py
+|   |   |       
+|   |   +---database
+|   |   |       database.py
+|   |   |       seeders.py
+|   |   |       
+|   |   \---modules
+|   |       |   __init__.py
+|   |       |   
+|   |       +---analytics
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---dashboard
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---dispatcher
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---drivers
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---expenses
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---finance
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---fleet
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---fuel
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---maintenance
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---safety
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---settings
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       +---trips
+|   |       |   |   constants.py
+|   |       |   |   __init__.py
+|   |       |   |   
+|   |       |   +---controllers
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---exceptions
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---models
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---repositories
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---schemas
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   +---services
+|   |       |   |       __init__.py
+|   |       |   |       
+|   |       |   \---validators
+|   |       |           __init__.py
+|   |       |           
+|   |       \---vehicles
+|   |           |   constants.py
+|   |           |   __init__.py
+|   |           |   
+|   |           +---controllers
+|   |           |       __init__.py
+|   |           |       
+|   |           +---exceptions
+|   |           |       __init__.py
+|   |           |       
+|   |           +---models
+|   |           |       __init__.py
+|   |           |       
+|   |           +---repositories
+|   |           |       __init__.py
+|   |           |       
+|   |           +---schemas
+|   |           |       __init__.py
+|   |           |       
+|   |           +---services
+|   |           |       __init__.py
+|   |           |       
+|   |           \---validators
+|   |                   __init__.py
+|   |                   
+|   +---static
+|   |       index.html
+|   |       
+|   +---templates
+|   |       forgot_password.html
+|   |       login.html
+|   |       registration.html
+|   |       
+|   \---tests
+|           test_rbac.py
+|           
+\---static
+        index.html
+        
