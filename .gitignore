@@ -1,0 +1,61 @@
+# Python Cache Files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment Files
+.env
+.env.*
+!.env.example
+
+# IDE Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Testing and Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.pyre/
+.mypy_cache/
+.ruff_cache/
+
+# Build Artifacts
+build/
+dist/
+*.egg-info/
+
+# SQLite databases
+*.db
+*.sqlite3
+
+# Uploads/Generated/Temporary files
+uploads/
+media/
+temp/
+
+# Alembic Cache (future support)
+.webassets-cache
+alembic/versions/*_cache.py
