@@ -1,0 +1,107 @@
+/*
+ * Landing Page Animations stylesheet (TransitOps).
+ * Houses keyframe configurations to maintain separation of concerns.
+ */
+
+/* 1. Cinematic Intro Animation Overlay */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #FFFFFF;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+  /* Fades overlay between 3.7s and 4.0s (0.3s duration) */
+  animation: overlayFade 0.3s 3.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.intro-truck-container {
+  position: absolute;
+  top: 55%;
+  transform: translateY(-50%);
+  width: 75vw;
+  max-width: 950px;
+  height: auto;
+  pointer-events: none;
+  opacity: 0;
+  /* Drives from Right to Left between 0.6s and 2.8s (2.2s duration) and stays parked at left: 5vw */
+  animation: truckReveal 2.2s 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-content-reveal {
+  opacity: 0;
+  /* Content fades in underneath between 3.2s and 4.0s (0.8s duration) */
+  animation: contentReveal 0.8s 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* 2. Hero Section Subtle Hover Animation (GPU-Friendly) */
+.hero-truck-image {
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform, filter;
+}
+
+.hero-truck-image:hover {
+  transform: scale(1.02) translateY(-2px);
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.15));
+}
+
+/* 3. Animation Keyframes */
+@keyframes truckReveal {
+  0% {
+    left: 100vw;
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+  100% {
+    left: 5vw;
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes overlayFade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes contentReveal {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 4. Accessibility: Prefers Reduced Motion Constraints */
+@media (prefers-reduced-motion: reduce) {
+  .intro-overlay {
+    display: none !important;
+  }
+  .animate-content-reveal {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .hero-truck-image {
+    transition: none !important;
+  }
+  .hero-truck-image:hover {
+    transform: none !important;
+    filter: none !important;
+  }
+  .intro-truck-container {
+    animation: none !important;
+  }
+}

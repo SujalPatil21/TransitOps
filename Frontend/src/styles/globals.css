@@ -1,0 +1,44 @@
+@import "./theme.css";
+
+@layer base {
+  body {
+    background-color: var(--color-bg-cream);
+    color: var(--color-text-primary);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Reusable smooth transition utility */
+  .transition-all-custom {
+    transition: var(--transition-normal);
+  }
+
+  /* Custom input focus ring style */
+  input:focus, select:focus, textarea:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+  }
+  
+  /* Scrollbar aesthetics for a clean layout */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-light);
+    border-radius: 9999px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+  }
+}
