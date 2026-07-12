@@ -1,1 +1,1 @@
-# models package for safety module
+# Safety models package

@@ -1,1 +1,1 @@
-# exceptions package for safety module
+# Safety exceptions package

@@ -10,6 +10,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.config.settings import settings, ConfigurationError
 from app.database.database import engine, Base
 from app.auth.controllers.router import router as auth_router
+from app.modules.fleet.controllers.vehicle_controller import router as fleet_router
+from app.modules.dispatcher.controllers.trip_controller import router as trip_router
 from app.auth.exceptions.exceptions import AuthException
 from app.common.responses import APIResponse
 
@@ -40,6 +42,10 @@ async def lifespan(app: FastAPI):
 
     logger.info("Initializing database tables...")
     try:
+        from app.auth.models.models import User
+        from app.modules.fleet.models.vehicle import Vehicle
+        from app.modules.safety.models.driver import Driver
+        from app.modules.dispatcher.models.trip import Trip
         Base.metadata.create_all(bind=engine)
         logger.info("Database tables initialized successfully.")
         
@@ -81,6 +87,8 @@ app.add_middleware(
 
 # Register Authentication router
 app.include_router(auth_router)
+app.include_router(fleet_router)
+app.include_router(trip_router)
 
 # Mount the test front-end static files
 # static folder is at the root of the workspace

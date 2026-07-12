@@ -1,1 +1,1 @@
-# schemas package for safety module
+# Safety schemas package

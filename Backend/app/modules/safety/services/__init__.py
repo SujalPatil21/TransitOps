@@ -1,1 +1,1 @@
-# services package for safety module
+# Safety services package

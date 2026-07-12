@@ -1,1 +1,1 @@
-# validators package for safety module
+# Safety validators package

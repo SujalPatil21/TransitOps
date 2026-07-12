@@ -1,1 +1,1 @@
-# repositories package for safety module
+# Safety repositories package

@@ -1,2 +1,1 @@
-# Safety Module
-# Domains: Drivers, Compliance, Maintenance
+"""Safety module: Driver Registry, Compliance, and License Management."""

@@ -1,1 +1,1 @@
-# controllers package for safety module
+# Safety controllers package
