@@ -11,10 +11,10 @@ class JWTService:
     """
 
     @staticmethod
-    def create_access_token(user_id: int, username: str, role: str) -> str:
+    def create_access_token(user_id: int, role: str) -> str:
         """
         Generates a new signed JWT access token.
-        Contains only: sub (user_id), username, role, and exp.
+        Contains only: sub (user_id), role, and exp.
         """
         # Set expiration timestamp using UTC time
         expire = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
@@ -23,7 +23,6 @@ class JWTService:
         
         payload = {
             "sub": str(user_id),
-            "username": username,
             "role": role,
             "exp": int(expire.timestamp())
         }
@@ -51,7 +50,7 @@ class JWTService:
             )
             
             # Double check required fields exist in payload to maintain contract safety
-            if not all(k in payload for k in ("sub", "username", "role", "exp")):
+            if not all(k in payload for k in ("sub", "role", "exp")):
                 raise InvalidTokenException("Token payload is missing required claims.")
                 
             return payload

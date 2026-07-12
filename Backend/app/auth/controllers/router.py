@@ -18,11 +18,10 @@ from app.auth.schemas.schemas import (
     ResetPasswordRequest,
     UserResponse
 )
+from app.auth.security.dependencies import get_current_user, oauth2_scheme
+from app.auth.security.permissions import RoleChecker
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-
-# Define OAuth2 scheme for JWT token extraction
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 def get_notification_service() -> EmailNotificationService:
     """
@@ -36,34 +35,6 @@ def get_auth_service(notifier: EmailNotificationService = Depends(get_notificati
     Dependency injector for AuthService.
     """
     return AuthService(notifier)
-
-def get_current_user(
-    token: str = Depends(oauth2_scheme), 
-    db: Session = Depends(get_db)
-) -> UserResponse:
-    """
-    Dependency that decodes the bearer JWT from headers and fetches the current user.
-    """
-    if not token:
-        raise InvalidTokenException("Missing authentication token.")
-
-    # Decode and verify the JWT payload
-    payload = JWTService.verify_token(token)
-    user_id_str = payload.get("sub")
-    if not user_id_str:
-        raise InvalidTokenException("Token payload is missing subject.")
-    
-    try:
-        user_id = int(user_id_str)
-    except ValueError:
-        raise InvalidTokenException("Invalid token subject format.")
-
-    # Fetch user from the repository
-    user = AuthRepository.get_user_by_id(db, user_id)
-    if not user:
-        raise UserNotFoundException("User associated with this token does not exist.")
-
-    return user
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
@@ -210,5 +181,16 @@ def get_me(current_user: UserResponse = Depends(get_current_user)):
     return APIResponse.success(
         message="User profile retrieved successfully.",
         data={"user": user_data},
+        status_code=status.HTTP_200_OK
+    )
+
+@router.get("/test-rbac", status_code=status.HTTP_200_OK)
+def test_rbac(current_user = Depends(RoleChecker(["Fleet Manager"]))):
+    """
+    Test endpoint only accessible by Fleet Manager.
+    """
+    return APIResponse.success(
+        message="Access granted to Fleet Manager successfully.",
+        data={"user": current_user.username},
         status_code=status.HTTP_200_OK
     )

@@ -110,4 +110,12 @@ class EmailAlreadyRegisteredException(AuthException):
             status_code=status.HTTP_409_CONFLICT
         )
 
+class ForbiddenException(AuthException):
+    def __init__(self, message: str = "You do not have permission to access this resource."):
+        super().__init__(
+            message=message,
+            error_code="FORBIDDEN",
+            status_code=status.HTTP_403_FORBIDDEN
+        )
+
 

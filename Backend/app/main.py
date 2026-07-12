@@ -42,6 +42,16 @@ async def lifespan(app: FastAPI):
     try:
         Base.metadata.create_all(bind=engine)
         logger.info("Database tables initialized successfully.")
+        
+        # Idempotently seed system roles and demo users
+        from app.database.seeders import seed_database
+        from app.database.database import SessionLocal
+        db = SessionLocal()
+        try:
+            seed_database(db)
+            logger.info("Database seeded successfully.")
+        finally:
+            db.close()
     except Exception as e:
         logger.error(f"[ERROR] Failed to initialize database tables: {str(e)}")
         # We do not crash startup in case DB is momentarily unavailable, but log it clearly.
@@ -86,6 +96,16 @@ def read_root():
     """
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/static/index.html")
+
+@app.get("/fleet-manager/dashboard")
+@app.get("/dispatcher/dashboard")
+@app.get("/safety-officer/dashboard")
+@app.get("/financial-analyst/dashboard")
+def dashboard_fallback():
+    from fastapi.responses import FileResponse
+    import os
+    static_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
+    return FileResponse(os.path.join(static_path, "index.html"))
 
 
 # ==============================================================================

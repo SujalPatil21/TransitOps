@@ -9,6 +9,32 @@ from app.auth.constants import UserRole
 def get_utc_now() -> datetime.datetime:
     return datetime.datetime.now(datetime.timezone.utc)
 
+class Role(Base):
+    """
+    SQLAlchemy Role Model.
+    Supports system-defined Fleet Manager, Dispatcher, Safety Officer, and Financial Analyst roles.
+    """
+    __tablename__ = "roles"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+    description: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), 
+        default=get_utc_now, 
+        nullable=False
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), 
+        default=get_utc_now, 
+        onupdate=get_utc_now, 
+        nullable=False
+    )
+
+    # Relationships
+    users: Mapped[list["User"]] = relationship(back_populates="role")
+
+
 class User(Base):
     """
     SQLAlchemy User Model.
@@ -21,8 +47,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     
-    # Defaults to USER. Modifying UserRole Enum dynamically extends support to other roles.
-    role: Mapped[str] = mapped_column(String(20), default=UserRole.USER.value, nullable=False)
+    role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     
     created_at: Mapped[datetime.datetime] = mapped_column(
@@ -38,11 +63,13 @@ class User(Base):
     )
 
     # Relationships
+    role: Mapped["Role"] = relationship(back_populates="users")
     # If a user is deleted, all their OTP records are deleted automatically
     otps: Mapped[list["OTPVerification"]] = relationship(
         back_populates="user", 
         cascade="all, delete-orphan"
     )
+
 
 
 class OTPVerification(Base):

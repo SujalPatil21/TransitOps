@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Generic, TypeVar, Optional, Any
 from app.auth.constants import UserRole, OTPPurpose
 
@@ -85,6 +85,13 @@ class UserResponse(BaseModel):
     email: EmailStr
     role: UserRole
     is_verified: bool
+    
+    @field_validator("role", mode="before")
+    @classmethod
+    def get_role_name(cls, v: Any) -> str:
+        if hasattr(v, "name"):
+            return v.name
+        return str(v)
     
     class Config:
         from_attributes = True

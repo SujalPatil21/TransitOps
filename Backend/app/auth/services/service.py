@@ -109,12 +109,21 @@ class AuthService:
         # Securely hash password before writing to the database
         password_hash = PasswordService.hash_password(req.password)
 
+        # Get default role (Dispatcher) from database
+        from app.auth.models.models import Role
+        dispatcher_role = db.query(Role).filter_by(name=UserRole.DISPATCHER.value).first()
+        if not dispatcher_role:
+            dispatcher_role = Role(name=UserRole.DISPATCHER.value)
+            db.add(dispatcher_role)
+            db.commit()
+            db.refresh(dispatcher_role)
+
         # Create user record (is_verified = False)
         new_user = User(
             username=req.username,
             email=req.email,
             password_hash=password_hash,
-            role=UserRole.USER.value,
+            role_id=dispatcher_role.id,
             is_verified=False
         )
         user = self.repo.create_user(db, new_user)
@@ -193,13 +202,12 @@ class AuthService:
             # Login successful, issue JWT token
             access_token = JWTService.create_access_token(
                 user_id=user.id,
-                username=user.username,
-                role=user.role
+                role=user.role.name
             )
             response_data = {
                 "access_token": access_token,
                 "token_type": "bearer",
-                "role": user.role,
+                "role": user.role.name,
                 "username": user.username
             }
             logger.info(f"[AUDIT] OTP Verified: user_id={user.id}, purpose={purpose.value}")
@@ -271,8 +279,7 @@ class AuthService:
         # Otherwise: Generate and return standard Access JWT Token directly
         access_token = JWTService.create_access_token(
             user_id=user.id,
-            username=user.username,
-            role=user.role
+            role=user.role.name
         )
         
         logger.info(f"[AUDIT] Login Success: username={user.username}")
@@ -280,7 +287,7 @@ class AuthService:
             "requires_otp": False,
             "access_token": access_token,
             "token_type": "bearer",
-            "role": user.role,
+            "role": user.role.name,
             "username": user.username
         }
 

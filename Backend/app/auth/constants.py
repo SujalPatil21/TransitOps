@@ -5,9 +5,10 @@ class UserRole(str, Enum):
     Extensible User Roles.
     Roles are string-based to easily integrate with security claims.
     """
-    USER = "USER"
-    ADMIN = "ADMIN"
-    MODERATOR = "MODERATOR"
+    FLEET_MANAGER = "Fleet Manager"
+    DISPATCHER = "Dispatcher"
+    SAFETY_OFFICER = "Safety Officer"
+    FINANCIAL_ANALYST = "Financial Analyst"
 
 class OTPPurpose(str, Enum):
     """

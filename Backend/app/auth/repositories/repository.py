@@ -1,6 +1,6 @@
 import datetime
 from sqlalchemy import select, delete
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.auth.models.models import User, OTPVerification
 
 class AuthRepository:
@@ -15,7 +15,7 @@ class AuthRepository:
         """
         Retrieves a user by their database primary key.
         """
-        stmt = select(User).where(User.id == user_id)
+        stmt = select(User).options(joinedload(User.role)).where(User.id == user_id)
         return db.execute(stmt).scalar_one_or_none()
 
     @staticmethod
@@ -23,7 +23,7 @@ class AuthRepository:
         """
         Retrieves a user by their unique email address.
         """
-        stmt = select(User).where(User.email == email)
+        stmt = select(User).options(joinedload(User.role)).where(User.email == email)
         return db.execute(stmt).scalar_one_or_none()
 
     @staticmethod
@@ -31,7 +31,7 @@ class AuthRepository:
         """
         Retrieves a user by their unique username.
         """
-        stmt = select(User).where(User.username == username)
+        stmt = select(User).options(joinedload(User.role)).where(User.username == username)
         return db.execute(stmt).scalar_one_or_none()
 
     @staticmethod
