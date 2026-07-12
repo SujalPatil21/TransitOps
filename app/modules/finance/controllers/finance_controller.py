@@ -7,7 +7,7 @@ from app.database.database import get_db
 from app.auth.constants import UserRole
 from app.auth.security.permissions import require_roles
 from app.common.responses import APIResponse
-from app.modules.finance.utils.dependency_checker import check_finance_dependencies
+from app.modules.finance.validators.finance_validator import check_finance_dependencies
 from app.modules.finance.services.finance_service import FinanceService
 
 router = APIRouter(
@@ -79,20 +79,20 @@ def get_reports(
     GET /financial/reports
     Returns a tabular dataset for reporting.
     """
-    error_msg = check_dependencies_or_raise(db)
-    if error_msg:
-        return APIResponse.error(
-            message=error_msg,
-            error_code="DEPENDENCY_MISSING",
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE
-        )
-
     valid_types = ["fuel", "expense", "maintenance", "vehicle_roi", "operational_cost", "trip_financial"]
     if report_type not in valid_types:
         return APIResponse.error(
             message=f"Invalid report type. Must be one of: {', '.join(valid_types)}",
             error_code="INVALID_REPORT_TYPE",
             status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+    error_msg = check_dependencies_or_raise(db)
+    if error_msg:
+        return APIResponse.error(
+            message=error_msg,
+            error_code="DEPENDENCY_MISSING",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE
         )
 
     data = FinanceService.get_report_data(db, report_type)
@@ -110,21 +110,20 @@ def export_csv(
     GET /financial/export/csv
     Streams report data as a CSV download.
     """
-    error_msg = check_dependencies_or_raise(db)
-    if error_msg:
-        # Since this returns a CSV, we raise an HTTP 503 so that FastAPI handles it as a standard error response
-        from fastapi import HTTPException
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=error_msg
-        )
-
     valid_types = ["fuel", "expense", "maintenance", "vehicle_roi", "operational_cost", "trip_financial"]
     if report_type not in valid_types:
         from fastapi import HTTPException
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid report type. Must be one of: {', '.join(valid_types)}"
+        )
+
+    error_msg = check_dependencies_or_raise(db)
+    if error_msg:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=error_msg
         )
 
     data = FinanceService.get_report_data(db, report_type)
@@ -135,7 +134,6 @@ def export_csv(
     if not data:
         writer.writerow(["No records found"])
     else:
-        # Get headers from dictionary keys
         headers = list(data[0].keys())
         writer.writerow([h.replace("_", " ").upper() for h in headers])
         for row in data:

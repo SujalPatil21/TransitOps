@@ -1,18 +1,5 @@
-import datetime
-from sqlalchemy import func
 from sqlalchemy.orm import Session
-from app.database.database import Base
-
-def get_model_class(concept_name: str):
-    """
-    Dynamically retrieves a model class from Base registry by its name.
-    Avoids hardcoding module imports.
-    """
-    for mapper in Base.registry.mappers:
-        class_name = mapper.class_.__name__
-        if concept_name in class_name:
-            return mapper.class_
-    raise ValueError(f"Model for '{concept_name}' not registered in ORM.")
+from app.modules.finance.repositories.finance_repository import FinanceRepository
 
 class FinanceService:
     @staticmethod
@@ -20,40 +7,18 @@ class FinanceService:
         """
         Computes financial dashboard summary metrics dynamically.
         """
-        Vehicle = get_model_class("Vehicle")
-        Trip = get_model_class("Trip")
-        FuelLog = get_model_class("Fuel")
-        MaintenanceRecord = get_model_class("Maintenance")
-
-        # 1. Total Fuel Cost
-        total_fuel = db.query(func.sum(FuelLog.fuel_cost)).scalar() or 0.0
-
-        # 2. Total Maintenance Cost
-        total_maint = db.query(func.sum(MaintenanceRecord.cost)).scalar() or 0.0
-
-        # 3. Total Operational Cost
+        total_fuel = FinanceRepository.get_total_fuel_cost(db)
+        total_maint = FinanceRepository.get_total_maintenance_cost(db)
         total_op = total_fuel + total_maint
 
-        # 4. Average Fuel Efficiency (Distance Travelled / Fuel Consumed)
-        # Sum of distance_travelled and fuel_consumed across all trips
-        trip_stats = db.query(
-            func.sum(Trip.distance_travelled),
-            func.sum(Trip.fuel_consumed)
-        ).first() or (0.0, 0.0)
-        total_dist = trip_stats[0] or 0.0
-        total_fuel_cons = trip_stats[1] or 0.0
+        total_dist, total_fuel_cons = FinanceRepository.get_trip_stats(db)
         avg_efficiency = (total_dist / total_fuel_cons) if total_fuel_cons > 0 else 0.0
 
-        # 5. Fleet Utilization ((Vehicles on Trip / Total Vehicles) * 100)
-        total_vehicles = db.query(func.count(Vehicle.id)).scalar() or 0
-        vehicles_on_trip = db.query(func.count(Vehicle.id)).filter(
-            func.lower(Vehicle.status) == "on_trip"
-        ).scalar() or 0
+        total_vehicles = FinanceRepository.get_total_vehicles_count(db)
+        vehicles_on_trip = FinanceRepository.get_vehicles_on_trip_count(db)
         utilization = (vehicles_on_trip / total_vehicles * 100) if total_vehicles > 0 else 0.0
 
-        # 6. Average Vehicle ROI: (Revenue - (Maintenance Cost + Fuel Cost)) / Acquisition Cost
-        # Fetch all vehicles
-        vehicles = db.query(Vehicle).all()
+        vehicles = FinanceRepository.get_all_vehicles(db)
         total_roi = 0.0
         roi_count = 0
 
@@ -62,25 +27,17 @@ class FinanceService:
             if acq_cost <= 0:
                 continue
 
-            # Sum revenue for this vehicle
-            revenue = db.query(func.sum(Trip.tripRevenue)).filter(Trip.vehicle_id == v.id).scalar() or 0.0
-            # Sum fuel for this vehicle
-            fuel = db.query(func.sum(FuelLog.fuel_cost)).filter(FuelLog.vehicle_id == v.id).scalar() or 0.0
-            # Sum maintenance for this vehicle
-            maint = db.query(func.sum(MaintenanceRecord.cost)).filter(MaintenanceRecord.vehicle_id == v.id).scalar() or 0.0
-
+            revenue, fuel, maint = FinanceRepository.get_vehicle_financials(db, v.id)
             roi = (revenue - (maint + fuel)) / acq_cost
             total_roi += roi
             roi_count += 1
 
         avg_roi = (total_roi / roi_count) if roi_count > 0 else 0.0
 
-        # 7. Recent Trips Summary (Last 5 trips)
-        recent_trips = db.query(Trip).order_id = Trip.id.desc()
-        trips_list = db.query(Trip).order_by(Trip.id.desc()).limit(5).all()
+        trips_list = FinanceRepository.get_recent_trips(db, limit=5)
         recent_summary = []
         for t in trips_list:
-            veh = db.query(Vehicle).filter(Vehicle.id == t.vehicle_id).first()
+            veh = FinanceRepository.get_vehicle_by_id(db, t.vehicle_id)
             reg = veh.registration_number if veh else "N/A"
             logged_at_str = t.start_time.strftime("%Y-%m-%d %H:%M:%S") if hasattr(t, "start_time") and t.start_time else "N/A"
             recent_summary.append({
@@ -101,7 +58,7 @@ class FinanceService:
             "average_vehicle_roi": round(avg_roi, 4),
             "recent_trips_summary": recent_summary,
             "vehicles": [{"id": v.id, "registration": v.registration_number} for v in vehicles],
-            "trips": [{"id": t.id, "label": f"Trip #{t.id}"} for t in db.query(Trip).all()]
+            "trips": [{"id": t.id, "label": f"Trip #{t.id}"} for t in FinanceRepository.get_all_trips(db)]
         }
 
     @staticmethod
@@ -109,12 +66,7 @@ class FinanceService:
         """
         Computes dynamic analytics filtered by Date Range and Vehicle.
         """
-        Vehicle = get_model_class("Vehicle")
-        Trip = get_model_class("Trip")
-        FuelLog = get_model_class("Fuel")
-        MaintenanceRecord = get_model_class("Maintenance")
-
-        # Parse dates
+        import datetime
         s_date, e_date = None, None
         if start_date:
             try:
@@ -127,33 +79,9 @@ class FinanceService:
             except ValueError:
                 pass
 
-        # 1. Fuel Efficiency over time (or per vehicle)
-        fuel_query = db.query(FuelLog)
-        trip_query = db.query(Trip)
-        maint_query = db.query(MaintenanceRecord)
-
-        if vehicle_id:
-            fuel_query = fuel_query.filter(FuelLog.vehicle_id == vehicle_id)
-            trip_query = trip_query.filter(Trip.vehicle_id == vehicle_id)
-            maint_query = maint_query.filter(MaintenanceRecord.vehicle_id == vehicle_id)
-
-        if s_date:
-            fuel_query = fuel_query.filter(FuelLog.logged_at >= s_date)
-            trip_query = trip_query.filter(Trip.start_time >= s_date)
-            maint_query = maint_query.filter(MaintenanceRecord.logged_at >= s_date)
-
-        if e_date:
-            fuel_query = fuel_query.filter(FuelLog.logged_at <= e_date)
-            trip_query = trip_query.filter(Trip.start_time <= e_date)
-            maint_query = maint_query.filter(MaintenanceRecord.logged_at <= e_date)
-
-        # Metrics for selected scope
-        fuels = fuel_query.all()
-        trips = trip_query.all()
-        maints = maint_query.all()
+        fuels, trips, maints = FinanceRepository.get_analytics_scope_data(db, s_date, e_date, vehicle_id)
 
         total_fuel_cost = sum(f.fuel_cost for f in fuels)
-        total_fuel_liters = sum(f.fuel_liters for f in fuels)
         total_maint_cost = sum(m.cost for m in maints)
         total_op_cost = total_fuel_cost + total_maint_cost
 
@@ -161,18 +89,17 @@ class FinanceService:
         total_fuel_cons = sum(t.fuel_consumed for t in trips)
         fuel_efficiency = (total_dist / total_fuel_cons) if total_fuel_cons > 0 else 0.0
 
-        # Fleet utilization
-        total_vehicles = db.query(func.count(Vehicle.id)).scalar() or 0
-        vehicles_on_trip = db.query(func.count(Vehicle.id)).filter(
-            func.lower(Vehicle.status) == "on_trip"
-        ).scalar() or 0
+        total_vehicles = FinanceRepository.get_total_vehicles_count(db)
+        vehicles_on_trip = FinanceRepository.get_vehicles_on_trip_count(db)
         utilization = (vehicles_on_trip / total_vehicles * 100) if total_vehicles > 0 else 0.0
 
-        # ROI for vehicles in scope
-        vehicles_query = db.query(Vehicle)
         if vehicle_id:
-            vehicles_query = vehicles_query.filter(Vehicle.id == vehicle_id)
-        vehicles = vehicles_query.all()
+            vehicles = []
+            v = FinanceRepository.get_vehicle_by_id(db, vehicle_id)
+            if v:
+                vehicles.append(v)
+        else:
+            vehicles = FinanceRepository.get_all_vehicles(db)
 
         total_roi = 0.0
         roi_count = 0
@@ -181,28 +108,8 @@ class FinanceService:
             if acq_cost <= 0:
                 continue
 
-            revenue = db.query(func.sum(Trip.tripRevenue)).filter(Trip.vehicle_id == v.id)
-            if s_date:
-                revenue = revenue.filter(Trip.start_time >= s_date)
-            if e_date:
-                revenue = revenue.filter(Trip.start_time <= e_date)
-            rev_val = revenue.scalar() or 0.0
-
-            fuel_c = db.query(func.sum(FuelLog.fuel_cost)).filter(FuelLog.vehicle_id == v.id)
-            if s_date:
-                fuel_c = fuel_c.filter(FuelLog.logged_at >= s_date)
-            if e_date:
-                fuel_c = fuel_c.filter(FuelLog.logged_at <= e_date)
-            fuel_val = fuel_c.scalar() or 0.0
-
-            maint_c = db.query(func.sum(MaintenanceRecord.cost)).filter(MaintenanceRecord.vehicle_id == v.id)
-            if s_date:
-                maint_c = maint_c.filter(MaintenanceRecord.logged_at >= s_date)
-            if e_date:
-                maint_c = maint_c.filter(MaintenanceRecord.logged_at <= e_date)
-            maint_val = maint_c.scalar() or 0.0
-
-            roi = (rev_val - (maint_val + fuel_val)) / acq_cost
+            revenue, fuel, maint = FinanceRepository.get_vehicle_financials(db, v.id, s_date, e_date)
+            roi = (revenue - (maint + fuel)) / acq_cost
             total_roi += roi
             roi_count += 1
 
@@ -222,18 +129,12 @@ class FinanceService:
         """
         Generates dynamic data matrices for specific reports.
         """
-        Vehicle = get_model_class("Vehicle")
-        Trip = get_model_class("Trip")
-        FuelLog = get_model_class("Fuel")
-        Expense = get_model_class("Expense")
-        MaintenanceRecord = get_model_class("Maintenance")
-
         records = []
 
         if report_type == "fuel":
-            logs = db.query(FuelLog).all()
+            logs = FinanceRepository.get_report_fuel_logs(db)
             for l in logs:
-                v = db.query(Vehicle).filter(Vehicle.id == l.vehicle_id).first()
+                v = FinanceRepository.get_vehicle_by_id(db, l.vehicle_id)
                 reg = v.registration_number if v else "N/A"
                 records.append({
                     "id": l.id,
@@ -244,11 +145,11 @@ class FinanceService:
                 })
 
         elif report_type == "expense":
-            exp = db.query(Expense).all()
+            exp = FinanceRepository.get_report_expenses(db)
             for e in exp:
                 reg = "N/A"
                 if e.vehicle_id:
-                    v = db.query(Vehicle).filter(Vehicle.id == e.vehicle_id).first()
+                    v = FinanceRepository.get_vehicle_by_id(db, e.vehicle_id)
                     reg = v.registration_number if v else "N/A"
                 records.append({
                     "id": e.id,
@@ -260,9 +161,9 @@ class FinanceService:
                 })
 
         elif report_type == "maintenance":
-            maint = db.query(MaintenanceRecord).all()
+            maint = FinanceRepository.get_report_maintenance_records(db)
             for m in maint:
-                v = db.query(Vehicle).filter(Vehicle.id == m.vehicle_id).first()
+                v = FinanceRepository.get_vehicle_by_id(db, m.vehicle_id)
                 reg = v.registration_number if v else "N/A"
                 records.append({
                     "id": m.id,
@@ -274,12 +175,10 @@ class FinanceService:
                 })
 
         elif report_type == "vehicle_roi":
-            vehicles = db.query(Vehicle).all()
+            vehicles = FinanceRepository.get_all_vehicles(db)
             for v in vehicles:
                 acq_cost = getattr(v, "acquisition_cost", 50000.0) or 50000.0
-                revenue = db.query(func.sum(Trip.tripRevenue)).filter(Trip.vehicle_id == v.id).scalar() or 0.0
-                fuel = db.query(func.sum(FuelLog.fuel_cost)).filter(FuelLog.vehicle_id == v.id).scalar() or 0.0
-                maint = db.query(func.sum(MaintenanceRecord.cost)).filter(MaintenanceRecord.vehicle_id == v.id).scalar() or 0.0
+                revenue, fuel, maint = FinanceRepository.get_vehicle_financials(db, v.id)
                 roi = ((revenue - (maint + fuel)) / acq_cost) if acq_cost > 0 else 0.0
                 records.append({
                     "vehicle_id": v.id,
@@ -292,10 +191,9 @@ class FinanceService:
                 })
 
         elif report_type == "operational_cost":
-            vehicles = db.query(Vehicle).all()
+            vehicles = FinanceRepository.get_all_vehicles(db)
             for v in vehicles:
-                fuel = db.query(func.sum(FuelLog.fuel_cost)).filter(FuelLog.vehicle_id == v.id).scalar() or 0.0
-                maint = db.query(func.sum(MaintenanceRecord.cost)).filter(MaintenanceRecord.vehicle_id == v.id).scalar() or 0.0
+                revenue, fuel, maint = FinanceRepository.get_vehicle_financials(db, v.id)
                 records.append({
                     "vehicle_id": v.id,
                     "registration_number": v.registration_number,
@@ -305,9 +203,9 @@ class FinanceService:
                 })
 
         elif report_type == "trip_financial":
-            trips = db.query(Trip).all()
+            trips = FinanceRepository.get_all_trips(db)
             for t in trips:
-                v = db.query(Vehicle).filter(Vehicle.id == t.vehicle_id).first()
+                v = FinanceRepository.get_vehicle_by_id(db, t.vehicle_id)
                 reg = v.registration_number if v else "N/A"
                 records.append({
                     "trip_id": t.id,
