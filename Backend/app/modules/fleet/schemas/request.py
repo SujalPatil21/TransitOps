@@ -68,3 +68,18 @@ class VehicleUpdateRequest(BaseModel):
         if v is not None and v < 0:
             raise ValueError("Odometer cannot be negative.")
         return v
+
+class MaintenanceCreateRequest(BaseModel):
+    """
+    Schema for creating a new maintenance record.
+    """
+    vehicle_id: int = Field(...)
+    description: str = Field(..., min_length=1, max_length=255)
+    cost: float = Field(...)
+
+    @field_validator("cost")
+    @classmethod
+    def validate_cost(cls, v: float) -> float:
+        if v < 0:
+            raise ValueError("Cost cannot be negative.")
+        return v

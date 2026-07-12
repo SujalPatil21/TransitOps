@@ -145,3 +145,42 @@ class VehicleService:
         except Exception:
             db.rollback()
             raise
+
+    @staticmethod
+    def send_to_maintenance(db: Session, vehicle_id: int, description: str, cost: float):
+        """
+        Sends a vehicle to maintenance.
+        Atomic transaction: Updates vehicle status to IN_SHOP and creates MaintenanceRecord.
+        Rollbacks both on any failure.
+        """
+        from app.modules.fleet.models.maintenance import MaintenanceRecord
+
+        vehicle = VehicleRepository.find_by_id(db, vehicle_id)
+        if not vehicle:
+            raise VehicleNotFoundException()
+
+        if vehicle.status != VehicleStatus.AVAILABLE.value:
+            raise VehicleValidationException(f"Vehicle must be 'AVAILABLE' to enter maintenance. Current: {vehicle.status}")
+
+        try:
+            # 1. Update vehicle status
+            vehicle.status = VehicleStatus.IN_SHOP.value
+            vehicle.updated_at = datetime.datetime.now(datetime.timezone.utc)
+            db.add(vehicle)
+
+            # 2. Create maintenance record
+            maintenance = MaintenanceRecord(
+                vehicle_id=vehicle.id,
+                description=description,
+                cost=cost,
+                status="ACTIVE"
+            )
+            db.add(maintenance)
+            
+            db.commit()
+            db.refresh(vehicle)
+            db.refresh(maintenance)
+            return vehicle, maintenance
+        except Exception:
+            db.rollback()
+            raise

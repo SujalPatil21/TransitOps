@@ -3,28 +3,34 @@ from typing import List
 from pydantic import BaseModel, ConfigDict
 
 
-class DriverResponse(BaseModel):
-    """Response schema for a single driver."""
+class DriverFrontendResponse(BaseModel):
+    """Response schema mapped to frontend camelCase expectations."""
     id: int
-    employee_id: str
-    full_name: str
-    email: str
-    phone: str
-    license_number: str
-    license_category: str
-    license_expiry: datetime.datetime
-    experience_years: int
-    safety_score: float
+    name: str
+    licenseNo: str
+    category: str
+    expiryDate: str
+    contact: str
+    safetyScore: float
     status: str
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class DriverListResponse(BaseModel):
-    """Response schema for a list of drivers."""
-    drivers: List[DriverResponse]
+    
+    # Adding for completeness based on DB model, though frontend may not show it yet
+    empId: str
+    tripCompletion: str = "N/A"
+    
+    @classmethod
+    def from_orm(cls, driver):
+        return cls(
+            id=driver.id,
+            name=driver.full_name,
+            licenseNo=driver.license_number,
+            category=driver.license_category,
+            expiryDate=driver.license_expiry.strftime("%Y-%m-%d"),
+            contact=driver.phone,
+            safetyScore=driver.safety_score,
+            status=driver.status,
+            empId=driver.employee_id
+        )
 
 
 class DashboardResponse(BaseModel):

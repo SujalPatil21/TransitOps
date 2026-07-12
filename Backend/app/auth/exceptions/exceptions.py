@@ -35,6 +35,14 @@ class UserNotVerifiedException(AuthException):
             status_code=status.HTTP_403_FORBIDDEN
         )
 
+class LockedAccountException(AuthException):
+    def __init__(self, message: str = "Your account is temporarily locked. Please try again later."):
+        super().__init__(
+            message=message,
+            error_code="LOCKED_ACCOUNT",
+            status_code=status.HTTP_403_FORBIDDEN
+        )
+
 class UserNotFoundException(AuthException):
     def __init__(self, message: str = "User not found."):
         super().__init__(

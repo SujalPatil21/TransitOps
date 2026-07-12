@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import ForeignKey, String, Boolean, DateTime
+from sqlalchemy import ForeignKey, String, Boolean, DateTime, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.database import Base
 from app.auth.constants import UserRole
@@ -49,6 +49,9 @@ class User(Base):
     
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    
+    failed_login_attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    locked_until: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), 

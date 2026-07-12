@@ -20,7 +20,8 @@ from app.auth.exceptions.exceptions import (
     OTPCooldownException,
     PasswordsDoNotMatchException,
     EmailSendFailedException,
-    EmailAlreadyRegisteredException
+    EmailAlreadyRegisteredException,
+    LockedAccountException
 )
 
 logger = logging.getLogger(__name__)
@@ -228,8 +229,19 @@ class AuthService:
             logger.info(f"[AUDIT] Login Failure: account does not exist email={email}")
             raise InvalidCredentialsException()
 
+        # Check if account is locked
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if user.locked_until and user.locked_until > now:
+            logger.info(f"[AUDIT] Login Failure: locked account for username={user.username}")
+            raise LockedAccountException(f"Account locked until {user.locked_until.strftime('%H:%M:%S UTC')}")
+
         # Verify password matches bcrypt hash
         if not PasswordService.verify_password(password, user.password_hash):
+            user.failed_login_attempts += 1
+            if user.failed_login_attempts >= 5:
+                user.locked_until = now + datetime.timedelta(minutes=15)
+                logger.info(f"[AUDIT] Account Locked: username={user.username}")
+            self.repo.update_user(db, user)
             logger.info(f"[AUDIT] Login Failure: wrong password for username={user.username}")
             raise InvalidCredentialsException()
 
@@ -237,6 +249,12 @@ class AuthService:
         if not user.is_verified:
             logger.info(f"[AUDIT] Login Failure: unverified email for username={user.username}")
             raise UserNotVerifiedException()
+
+        # Reset failed attempts on successful login
+        if user.failed_login_attempts > 0 or user.locked_until:
+            user.failed_login_attempts = 0
+            user.locked_until = None
+            self.repo.update_user(db, user)
 
         # Check if Login OTP is enabled
         if settings.ENABLE_LOGIN_OTP:

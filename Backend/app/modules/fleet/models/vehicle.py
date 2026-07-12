@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import String, Float, Integer, DateTime
+from sqlalchemy import String, Float, Integer, DateTime, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database.database import Base
 from app.modules.fleet.constants import VehicleStatus
@@ -14,6 +14,10 @@ class Vehicle(Base):
     Enforces a database-level UNIQUE constraint on registration_number.
     """
     __tablename__ = "vehicles"
+    __table_args__ = (
+        CheckConstraint('capacity_kg > 0', name='check_capacity_positive'),
+        CheckConstraint('odometer >= 0', name='check_odometer_non_negative'),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     registration_number: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
